@@ -21,6 +21,7 @@ char direction;
 bool sleep;
 int current = 0;
 bool gameOn = true;
+mutex coutMutex, mutex2;
 
 void fruit()
 {
@@ -140,6 +141,7 @@ void repaint()
 {
 	while (gameOn)
 	{
+		coutMutex.lock();
 		set_cursor_position(0, 0);
 		for (int i = 0; i < MAP_Y; i++)
 		{
@@ -159,6 +161,7 @@ void repaint()
 			cout << endl;
 		}
 		cout << endl << endl << "SCORE: " << score;
+		coutMutex.unlock();
 	}
 }
 
