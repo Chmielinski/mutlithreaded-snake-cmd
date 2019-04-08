@@ -145,7 +145,7 @@ void repaint(int id)
 {
 	while (gameOn)
 	{
-		std::unique_lock<std::mutex> lck(mtx);
+		unique_lock<mutex> lck(mtx);
 		cv.notify_all();
 		while (id != current) 
 		{
@@ -252,7 +252,7 @@ void movement(int id)
 {
 	while (gameOn)
 	{
-		std::unique_lock<std::mutex> lck(mtx);
+		unique_lock<mutex> lck(mtx);
 		cv.notify_all();
 		while (id != current)
 		{
@@ -260,7 +260,7 @@ void movement(int id)
 		}
 		current = 0;
 		find_node(1);
-		this_thread::sleep_for(0.05s);
+		this_thread::sleep_for(0.04s);
 		switch (direction)
 		{
 			case 'w':
@@ -290,7 +290,7 @@ void movement(int id)
 
 void run()
 {
-	lock_guard<std::mutex> lck(mtx);
+	lock_guard<mutex> lck(mtx);
 	cv.notify_all();
 }
 
