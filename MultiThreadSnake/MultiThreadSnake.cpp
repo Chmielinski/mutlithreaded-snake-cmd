@@ -5,6 +5,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include "Semaphore.h"
 
 #define MAP_Y 20
 #define MAP_X 50
@@ -18,10 +19,13 @@ int x;
 int y;
 int score;
 char direction;
-bool sleep;
-int current = 0;
 bool gameOn = true;
-mutex coutMutex, mutex2;
+
+std::mutex mtx;             // mutex for critical section
+std::condition_variable cv; // condition variable for critical section  
+bool ready = false;         // Tell threads to run
+int current = 0;            // current count
+
 
 void fruit()
 {
@@ -137,11 +141,17 @@ void inputs()
 	}
 }
 
-void repaint()
+void repaint(int id)
 {
 	while (gameOn)
 	{
-		coutMutex.lock();
+		std::unique_lock<std::mutex> lck(mtx);
+		cv.notify_all();
+		while (id != current) 
+		{
+			cv.wait(lck); 
+		}
+		current = 1;
 		set_cursor_position(0, 0);
 		for (int i = 0; i < MAP_Y; i++)
 		{
@@ -160,8 +170,8 @@ void repaint()
 			}
 			cout << endl;
 		}
-		cout << endl << endl << "SCORE: " << score;
-		coutMutex.unlock();
+		cout << endl << endl << "SCORE: " << score; 
+		cv.notify_all();
 	}
 }
 
@@ -193,7 +203,7 @@ void move(int plusX, int plusY)
 	else if (Map[y + plusY][x + plusX] == -1 || Map[y + plusY][x + plusX] > 0)
 	{
 		gameOn = false;
-		_putch(0);
+		cv.notify_all();
 	}
 	else if (Map[y + plusY][x + plusX] == -2)
 	{
@@ -238,12 +248,19 @@ void move(int plusX, int plusY)
 	}
 }
 
-void movement()
+void movement(int id)
 {
 	while (gameOn)
 	{
+		std::unique_lock<std::mutex> lck(mtx);
+		cv.notify_all();
+		while (id != current)
+		{
+			cv.wait(lck);
+		}
+		current = 0;
 		find_node(1);
-		this_thread::sleep_for(0.1s);
+		this_thread::sleep_for(0.05s);
 		switch (direction)
 		{
 			case 'w':
@@ -267,12 +284,20 @@ void movement()
 				continue;
 			}
 		}
+		cv.notify_all();
 	}
+}
+
+void run()
+{
+	lock_guard<std::mutex> lck(mtx);
+	cv.notify_all();
 }
 
 void init_map()
 {
 	system("cls");
+	Semaphore sem;
 	int tempMap[MAP_Y][MAP_X] =
 	{
 		{ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 },
@@ -308,8 +333,9 @@ void init_map()
 	score = 0;
 	direction = 'a';
 	thread inputs(inputs);
-	thread repaint(repaint);
-	thread movement(movement);
+	thread repaint(repaint, 0);
+	thread movement(movement, 1);
+	run();
 	inputs.join();
 	repaint.join();
 	movement.join();
