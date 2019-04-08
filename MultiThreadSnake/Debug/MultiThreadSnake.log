@@ -1,1 +1,3 @@
-﻿  MultiThreadSnake.vcxproj -> C:\Users\DELL\source\repos\MultiThreadSnake\Debug\MultiThreadSnake.exe
+﻿  MultiThreadSnake.cpp
+c:\users\dell\source\repos\multithreadsnake\multithreadsnake\multithreadsnake.cpp(317): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  MultiThreadSnake.vcxproj -> C:\Users\DELL\source\repos\MultiThreadSnake\Debug\MultiThreadSnake.exe
