@@ -2,10 +2,7 @@
 #include <conio.h>
 #include <iostream>
 #include <windows.h>
-#include <thread>
-#include <mutex>
 #include <condition_variable>
-#include "Semaphore.h"
 
 #define MAP_Y 20
 #define MAP_X 50
@@ -260,7 +257,7 @@ void movement(int id)
 		}
 		current = 0;
 		find_node(1);
-		this_thread::sleep_for(0.04s);
+		this_thread::sleep_for(0.02s);
 		switch (direction)
 		{
 			case 'w':
@@ -297,7 +294,6 @@ void run()
 void init_map()
 {
 	system("cls");
-	Semaphore sem;
 	int tempMap[MAP_Y][MAP_X] =
 	{
 		{ -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1 },
